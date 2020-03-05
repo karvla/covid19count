@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import matplotlib.pyplot as plt
 import xlrd
 from bs4 import BeautifulSoup
