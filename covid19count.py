@@ -42,8 +42,8 @@ for region in regions:
     plt.bar(data[region]["dates"], np.cumsum(data[region]["counts"]), alpha = 1.0/len(regions))
 
 plt.legend(regions)
-plt.ylabel("Number of Confirmed Cases")
-plt.title("Confiremed cases per country as of " + str(datetime.today().date()))
+plt.ylabel("Number of confirmed cases")
+plt.title("Confirmed cases per country as of " + str(datetime.today().date()))
 plt.savefig("./plot.svg")
 plt.show()
 
