@@ -34,13 +34,14 @@ for date, count, country in reversed(list(zip(dates, counts, countries))):
         data[country]["counts"].append(count)
 
 regions = sys.argv[1:]
+regions = sorted(regions, key=lambda r: sum(data[r]["counts"]), reverse=True)
 
 f = plt.figure(figsize=(7,4))
 ax = f.add_subplot(111)
 ax.yaxis.tick_right()
 ax.yaxis.set_label_position("right")
 for region in regions:
-    plt.bar(data[region]["dates"], np.cumsum(data[region]["counts"]), alpha = 1.0/len(regions))
+    plt.bar(data[region]["dates"], np.cumsum(data[region]["counts"]))
 
 plt.legend(regions)
 plt.ylabel("Number of confirmed cases")
