@@ -43,9 +43,10 @@ ax.yaxis.set_label_position("right")
 for region in regions:
     plt.bar(data[region]["dates"], np.cumsum(data[region]["counts"]), alpha=0.6)
 
+end_date = data[regions[0]]["dates"][-1].date()
 plt.legend(regions)
 plt.ylabel("Number of confirmed cases")
-plt.title("Confirmed cases per country as of " + str(datetime.today().date()))
+plt.title("Confirmed cases per country as of " + str(end_date))
 plt.savefig("./plot.svg")
 plt.show()
 
