@@ -7,13 +7,14 @@ import urllib.request
 from datetime import datetime
 import numpy as np
 import sys
+import regex as re
 
 url = "https://www.ecdc.europa.eu/en/geographical-distribution-2019-ncov-cases"
 
 page = requests.get(url)
 soup = BeautifulSoup(page.text, "html.parser")
-xls_link_box = soup.find(text="Download today's data: Geographic distribution of COVID-19 cases worldwide - XLS file")
-xls_url = xls_link_box.parent["href"]
+xls_link_box = soup.find("a", href=re.compile(".+\.xls"))
+xls_url = xls_link_box["href"]
 
 
 urllib.request.urlretrieve(xls_url, './covid_count.xls')
