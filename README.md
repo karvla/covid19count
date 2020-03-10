@@ -5,5 +5,6 @@ Plots number of confirmed COVID-19 cases for countries worldwide. The data is pu
 ![example](https://github.com/karvla/covid19count/raw/master/example.png)
 
 ## Usage
-Run with `python3 covid19count.py nameofcountry1 nameofcountry2 ...`. 
+Run with `python3 covid19count.py --regions nameofcountry1 nameofcountry2 ...`. 
+To plot using logarithmic y-axis, add the argument `--log`.
 
