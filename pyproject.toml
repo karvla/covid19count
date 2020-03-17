@@ -6,7 +6,7 @@ authors = ["Arvid Larsson", "Erik Bjäreholt <erik@bjareho.lt>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 beautifulsoup4 = "^4.8.2"
 openpyxl = "^3.0.3"
 matplotlib = "^3.2.0"
@@ -15,6 +15,7 @@ xlrd = "^1.2.0"
 numpy = "^1.18.1"
 regex = "^2020.2.20"
 click = "^7.1.1"
+pandas = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"

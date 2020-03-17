@@ -144,6 +144,22 @@ jdcal = "*"
 
 [[package]]
 category = "main"
+description = "Powerful data structures for data analysis, time series, and statistics"
+name = "pandas"
+optional = false
+python-versions = ">=3.6.1"
+version = "1.0.2"
+
+[package.dependencies]
+numpy = ">=1.13.3"
+python-dateutil = ">=2.6.1"
+pytz = ">=2017.2"
+
+[package.extras]
+test = ["pytest (>=4.0.2)", "pytest-xdist", "hypothesis (>=3.58)"]
+
+[[package]]
+category = "main"
 description = "Python parsing module"
 name = "pyparsing"
 optional = false
@@ -160,6 +176,14 @@ version = "2.8.1"
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+category = "main"
+description = "World timezone definitions, modern and historical"
+name = "pytz"
+optional = false
+python-versions = "*"
+version = "2019.3"
 
 [[package]]
 category = "main"
@@ -241,8 +265,8 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.2.0"
 
 [metadata]
-content-hash = "2ea4bed609bfaab87bff675d4370d7c4f02f8d7faa14f33ccad1a93560702f91"
-python-versions = "^3.6"
+content-hash = "3465383b315f2f99e7312c170f913d8ba806c282d345857a25f1c2786a718dbf"
+python-versions = "^3.7"
 
 [metadata.files]
 beautifulsoup4 = [
@@ -378,6 +402,22 @@ numpy = [
 openpyxl = [
     {file = "openpyxl-3.0.3.tar.gz", hash = "sha256:547a9fc6aafcf44abe358b89ed4438d077e9d92e4f182c87e2dc294186dc4b64"},
 ]
+pandas = [
+    {file = "pandas-1.0.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:04fe02d492d917bbdf314f63517616c1cc7ac7c25495f322c7df5745583bf548"},
+    {file = "pandas-1.0.2-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:4269c698d3f76889520b9e022702c975b5b19a63705a2e098694f5f8719c7287"},
+    {file = "pandas-1.0.2-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:7034fd811df432465fe2fec64637db84600b5f1d0e9d1123195360e2f9bf4b7d"},
+    {file = "pandas-1.0.2-cp36-cp36m-win32.whl", hash = "sha256:3c76643abfe83f4f3a107d06bea64d4cf702afc97a7f3a3c54275f48c7378c54"},
+    {file = "pandas-1.0.2-cp36-cp36m-win_amd64.whl", hash = "sha256:dac3bf7495c7ce6a72dff2158c8ead0f377832491a672145829ac06d64782192"},
+    {file = "pandas-1.0.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:e0e752699b4be387783506d34f12bef063b76ce1695aabfb0cd15bde82a3a5a7"},
+    {file = "pandas-1.0.2-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:1a96b3e5172f194036d384fd9e853cbf94c42ec13bfebceb1eb0175c96f4e5d3"},
+    {file = "pandas-1.0.2-cp37-cp37m-win32.whl", hash = "sha256:37d2b9f7301177e7ba2de1ab8be929a0e2625821d1d21de5f2f2eddfa16742b4"},
+    {file = "pandas-1.0.2-cp37-cp37m-win_amd64.whl", hash = "sha256:e462ca4a59daea2ba73ac87186d638d7a43a86ec063705cf9cd215b0fafa8c0e"},
+    {file = "pandas-1.0.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:852cac070c0928a2374854df312ba655533ff324bd0edc9b36d89adbc7b90263"},
+    {file = "pandas-1.0.2-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:4d4af03db48a9b292f700c4d5df52645e5a59046800594c46e53b0518ecf3ade"},
+    {file = "pandas-1.0.2-cp38-cp38-win32.whl", hash = "sha256:9464f4ff95fd8f4c4a5245819e353052a0c501dd2fb027b294b005ed25f4d992"},
+    {file = "pandas-1.0.2-cp38-cp38-win_amd64.whl", hash = "sha256:137afc43ce7bd19b129dd0211177d03307080a728072e0a474de113ffec7f3c9"},
+    {file = "pandas-1.0.2.tar.gz", hash = "sha256:76334ba36aa42f93b6b47b79cbc32187d3a178a4ab1c3a478c8f4198bcd93a73"},
+]
 pyparsing = [
     {file = "pyparsing-2.4.6-py2.py3-none-any.whl", hash = "sha256:c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec"},
     {file = "pyparsing-2.4.6.tar.gz", hash = "sha256:4c830582a84fb022400b85429791bc551f1f4871c33f23e44f353119e92f969f"},
@@ -385,6 +425,10 @@ pyparsing = [
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
     {file = "python_dateutil-2.8.1-py2.py3-none-any.whl", hash = "sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"},
+]
+pytz = [
+    {file = "pytz-2019.3-py2.py3-none-any.whl", hash = "sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d"},
+    {file = "pytz-2019.3.tar.gz", hash = "sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"},
 ]
 regex = [
     {file = "regex-2020.2.20-cp27-cp27m-win32.whl", hash = "sha256:99272d6b6a68c7ae4391908fc15f6b8c9a6c345a46b632d7fdb7ef6c883a2bbb"},

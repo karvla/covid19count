@@ -13,14 +13,17 @@ import urllib.request
 from bs4 import BeautifulSoup
 
 
-def load_data(regions: List[str]):
+def _get_xls_url() -> str:
     url = "https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide"
 
     page = requests.get(url)
     soup = BeautifulSoup(page.text, "html.parser")
     xls_link_box = soup.find("a", href=re.compile(r".+\.xls"))
-    xls_url = xls_link_box["href"]
+    return xls_link_box["href"]
 
+
+def load_data(regions: List[str]):
+    xls_url = _get_xls_url()
     urllib.request.urlretrieve(xls_url, "./covid_count.xls")
     wb_obj = xlrd.open_workbook("./covid_count.xls")
     xl_sheet = wb_obj.sheet_by_index(0)
@@ -44,8 +47,8 @@ def load_data(regions: List[str]):
 
 @click.command()
 @click.argument("regions", nargs=-1, required=True)
-@click.option("--log", "-l", default=False)
-@click.option("--fit", default=False, help="Fit an exponential function to the data")
+@click.option("--log", is_flag=True)
+@click.option("--fit", is_flag=True, help="Fit an exponential function to the data")
 def plot_data(regions: List[str], log: bool, fit: bool):
     if fit:
         raise NotImplementedError
@@ -68,5 +71,28 @@ def plot_data(regions: List[str], log: bool, fit: bool):
     plt.show()
 
 
+@click.command()
+@click.argument("regions", nargs=-1, required=True)
+@click.option("--log", is_flag=True)
+def plot_data_pandas(regions: List[str], log: bool):
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    # TODO: Make sure that XLS file is actually downloaded
+    df = pd.read_excel(
+        _get_xls_url(), index_col="DateRep", parse_dates=True
+    ).sort_index()
+
+    for region in regions:
+        df_r = df[df["CountryExp"].str.lower() == region.lower()]
+        df_r = df_r["NewConfCases"].cumsum()
+        # Remove rows before first case
+        df_r = df_r.truncate(before=df_r.ge(1).idxmax())
+        df_r.plot(logy=log, label=region)
+
+    plt.legend()
+    plt.show()
+
+
 if __name__ == "__main__":
-    plot_data()
+    plot_data_pandas()
