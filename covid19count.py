@@ -10,41 +10,41 @@ import sys
 import regex as re
 import click
 
-url = "https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide"
 
-page = requests.get(url)
-soup = BeautifulSoup(page.text, "html.parser")
-xls_link_box = soup.find("a", href=re.compile(".+\.xls"))
-xls_url = xls_link_box["href"]
+def load_data(regions):
+    url = "https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide"
 
+    page = requests.get(url)
+    soup = BeautifulSoup(page.text, "html.parser")
+    xls_link_box = soup.find("a", href=re.compile(".+\.xls"))
+    xls_url = xls_link_box["href"]
 
-urllib.request.urlretrieve(xls_url, "./covid_count.xls")
-wb_obj = xlrd.open_workbook("./covid_count.xls")
-xl_sheet = wb_obj.sheet_by_index(0)
+    urllib.request.urlretrieve(xls_url, "./covid_count.xls")
+    wb_obj = xlrd.open_workbook("./covid_count.xls")
+    xl_sheet = wb_obj.sheet_by_index(0)
 
-date = lambda x: datetime.fromordinal(
-    datetime(1900, 1, 1).toordinal() + int(x.value) - 2
-)
-dates = list(map(date, xl_sheet.col(0)[1:]))
-countries = list(map(lambda x: x.value.lower(), xl_sheet.col(1)[1:]))
-counts = list(map(lambda x: x.value, xl_sheet.col(2)[1:]))
+    date = lambda x: datetime.fromordinal(
+        datetime(1900, 1, 1).toordinal() + int(x.value) - 2
+    )
+    dates = list(map(date, xl_sheet.col(0)[1:]))
+    countries = list(map(lambda x: x.value.lower(), xl_sheet.col(1)[1:]))
+    counts = list(map(lambda x: x.value, xl_sheet.col(2)[1:]))
 
-data = {}
-for date, count, country in reversed(list(zip(dates, counts, countries))):
-    if country not in data:
-        data[country] = {"dates": [date], "counts": [count]}
-    else:
-        data[country]["dates"].append(date)
-        data[country]["counts"].append(count)
-
-regions = sys.argv[1:]
+    data = {}
+    for date, count, country in reversed(list(zip(dates, counts, countries))):
+        if country not in data:
+            data[country] = {"dates": [date], "counts": [count]}
+        else:
+            data[country]["dates"].append(date)
+            data[country]["counts"].append(count)
+    return data
 
 
 @click.command()
-@click.option("--regions", "-r", nargs=0, required=True)
-@click.argument("regions", nargs=-1)
-@click.option("--log", "-l", count=True)
+@click.argument("regions", nargs=-1, required=True)
+@click.option("--log", "-l", count=True, default=True)
 def plot_data(regions, log):
+    data = load_data(regions)
     f = plt.figure(figsize=(7, 4))
     ax = f.add_subplot(111)
     ax.yaxis.tick_right()
