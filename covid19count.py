@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
+
+import regex as re
+from datetime import datetime
+from typing import List
+
+import numpy as np
+import click
 import matplotlib.pyplot as plt
 import xlrd
-from bs4 import BeautifulSoup
 import requests
 import urllib.request
-from datetime import datetime
-import numpy as np
-import sys
-import regex as re
-import click
+from bs4 import BeautifulSoup
 
 
-def load_data(regions):
+def load_data(regions: List[str]):
     url = "https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide"
 
     page = requests.get(url)
     soup = BeautifulSoup(page.text, "html.parser")
-    xls_link_box = soup.find("a", href=re.compile(".+\.xls"))
+    xls_link_box = soup.find("a", href=re.compile(r".+\.xls"))
     xls_url = xls_link_box["href"]
 
     urllib.request.urlretrieve(xls_url, "./covid_count.xls")
@@ -42,8 +44,12 @@ def load_data(regions):
 
 @click.command()
 @click.argument("regions", nargs=-1, required=True)
-@click.option("--log", "-l", count=True, default=True)
-def plot_data(regions, log):
+@click.option("--log", "-l", default=False)
+@click.option("--fit", default=False, help="Fit an exponential function to the data")
+def plot_data(regions: List[str], log: bool, fit: bool):
+    if fit:
+        raise NotImplementedError
+
     data = load_data(regions)
     f = plt.figure(figsize=(7, 4))
     ax = f.add_subplot(111)

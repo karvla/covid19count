@@ -17,6 +17,7 @@ regex = "^2020.2.20"
 click = "^7.1.1"
 
 [tool.poetry.dev-dependencies]
+mypy = "^0.770"
 
 [build-system]
 requires = ["poetry>=0.12"]

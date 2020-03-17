@@ -1,2 +1,4 @@
 *.svg
 *.xls
+__pycache__
+*.egg-info
