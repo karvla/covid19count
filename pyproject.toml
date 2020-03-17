@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "covid19count"
+version = "0.1.0"
+description = ""
+authors = ["Arvid Larsson", "Erik Bjäreholt <erik@bjareho.lt>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+beautifulsoup4 = "^4.8.2"
+openpyxl = "^3.0.3"
+matplotlib = "^3.2.0"
+requests = "^2.23.0"
+xlrd = "^1.2.0"
+numpy = "^1.18.1"
+regex = "^2020.2.20"
+click = "^7.1.1"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.770"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
