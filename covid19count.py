@@ -21,60 +21,10 @@ def _get_xls_url() -> str:
     xls_link_box = soup.find("a", href=re.compile(r".+\.xls"))
     return xls_link_box["href"]
 
-
-def load_data(regions: List[str]):
-    xls_url = _get_xls_url()
-    urllib.request.urlretrieve(xls_url, "./covid_count.xls")
-    wb_obj = xlrd.open_workbook("./covid_count.xls")
-    xl_sheet = wb_obj.sheet_by_index(0)
-
-    date = lambda x: datetime.fromordinal(
-        datetime(1900, 1, 1).toordinal() + int(x.value) - 2
-    )
-    dates = list(map(date, xl_sheet.col(0)[1:]))
-    countries = list(map(lambda x: x.value.lower(), xl_sheet.col(1)[1:]))
-    counts = list(map(lambda x: x.value, xl_sheet.col(2)[1:]))
-
-    data = {}
-    for date, count, country in reversed(list(zip(dates, counts, countries))):
-        if country not in data:
-            data[country] = {"dates": [date], "counts": [count]}
-        else:
-            data[country]["dates"].append(date)
-            data[country]["counts"].append(count)
-    return data
-
-
 @click.command()
 @click.argument("regions", nargs=-1, required=True)
 @click.option("--log", is_flag=True)
-@click.option("--fit", is_flag=True, help="Fit an exponential function to the data")
-def plot_data(regions: List[str], log: bool, fit: bool):
-    if fit:
-        raise NotImplementedError
-
-    data = load_data(regions)
-    f = plt.figure(figsize=(7, 4))
-    ax = f.add_subplot(111)
-    ax.yaxis.tick_right()
-    ax.yaxis.set_label_position("right")
-    for region in regions:
-        plt.plot(data[region]["dates"], np.cumsum(data[region]["counts"]), linewidth=3)
-
-    end_date = data[regions[0]]["dates"][-1].date()
-    plt.legend(regions)
-    plt.ylabel("Number of confirmed cases")
-    if log:
-        plt.yscale("log")
-    plt.title("Confirmed cases per country as of " + str(end_date))
-    plt.savefig("./plot.svg")
-    plt.show()
-
-
-@click.command()
-@click.argument("regions", nargs=-1, required=True)
-@click.option("--log", is_flag=True)
-def plot_data_pandas(regions: List[str], log: bool):
+def plot_data(regions: List[str], log: bool):
     import matplotlib.pyplot as plt
     import pandas as pd
 
@@ -84,15 +34,21 @@ def plot_data_pandas(regions: List[str], log: bool):
     ).sort_index()
 
     for region in regions:
-        df_r = df[df["CountryExp"].str.lower() == region.lower()]
-        df_r = df_r["NewConfCases"].cumsum()
+        df_r = df[df["Countries and territories"].str.lower() == region.lower()]
+        df_r = df_r["Cases"].cumsum()
         # Remove rows before first case
         df_r = df_r.truncate(before=df_r.ge(1).idxmax())
         df_r.plot(logy=log, label=region)
 
+    plt.ylabel("Number of confirmed cases")
+    if log:
+        plt.yscale("log")
+
+    end_date = max(df.index).date()
+    plt.title("Confirmed cases per country as of " + str(end_date))
     plt.legend()
     plt.show()
 
 
 if __name__ == "__main__":
-    plot_data_pandas()
+    plot_data()
