@@ -49,6 +49,9 @@ def plot_data(regions: List[str], log: bool):
     plt.legend()
     plt.show()
 
+    # Saving figure
+    plt.savefig('output.png')
+
 
 if __name__ == "__main__":
     plot_data()
