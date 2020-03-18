@@ -33,22 +33,29 @@ def plot_data(regions: List[str], log: bool):
         _get_xls_url(), index_col="DateRep", parse_dates=True
     ).sort_index()
 
+    validregions = False
+
     for region in regions:
-        df_r = df[df["Countries and territories"].str.lower() == region.lower()]
-        df_r = df_r["Cases"].cumsum()
-        # Remove rows before first case
-        df_r = df_r.truncate(before=df_r.ge(1).idxmax())
-        df_r.plot(logy=log, label=region)
+        try:
+          df_r = df[df["Countries and territories"].str.lower() == region.lower()]
+          df_r = df_r["Cases"].cumsum()
+          # Remove rows before first case
+          df_r = df_r.truncate(before=df_r.ge(1).idxmax())
+          df_r.plot(logy=log, label=region)
+          validregions = True
+        except ValueError:
+          print("The region:", region, "was not in the dataset.")
 
-    plt.ylabel("Number of confirmed cases")
-    if log:
-        plt.yscale("log")
+    if ( validregions ):
 
-    end_date = max(df.index).date()
-    plt.title("Confirmed cases per country as of " + str(end_date))
-    plt.legend()
-    plt.show()
+      plt.ylabel("Number of confirmed cases")
+      if log:
+          plt.yscale("log")
 
+      end_date = max(df.index).date()
+      plt.title("Confirmed cases per country as of " + str(end_date))
+      plt.legend()
+      plt.show()
 
 if __name__ == "__main__":
     plot_data()
