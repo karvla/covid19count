@@ -85,34 +85,6 @@ function sendJson(response, object) {
   response.end(json);
 }
 
-function month_name_from_string_nbr(string_nbr)
-{
-  if (string_nbr == "01")
-    return "Jan";
-  if (string_nbr == "02")
-    return "Feb";
-  if (string_nbr == "03")
-    return "Mar";
-  if (string_nbr == "04")
-    return "Apr";
-  if (string_nbr == "05")
-    return "May";
-  if (string_nbr == "06")
-    return "Jun";
-  if (string_nbr == "07")
-    return "Jul";
-  if (string_nbr == "08")
-    return "Aug";
-  if (string_nbr == "09")
-    return "Sep";
-  if (string_nbr == "10")
-    return "Oct";
-  if (string_nbr == "11")
-    return "Nov";
-  if (string_nbr == "12")
-    return "Dec";
-}
-
 function outputFile(res, url) {
   try {
 
@@ -193,6 +165,11 @@ const server = http.createServer((req, res) => {
   } else {
     /* Not a CGI call */
     timestampLog( ip + ": " + url);
+
+    if ( url.indexOf('?') != -1 ) {
+      // Used to add timestamps
+      url = url.split("?")[0];
+    }
 
     var filereq = outputFile(res,url);
     if ( ! filereq ) {

@@ -26,5 +26,6 @@ EXPOSE 8080
 RUN pip3 install .
 
 RUN python3 avaiableRegions.py
+RUN python3 covid19count.py sweden denmark norway finland
 
 CMD ["node", "app.js"]

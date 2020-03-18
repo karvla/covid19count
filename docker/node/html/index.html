@@ -211,8 +211,25 @@
         httpGet(url);
       }
 
-      function setupDatasetSelect(){
-        var command = "ls data";
+      var addToPlotVec = [];
+      var pView = "added-regions-p";
+      var imgView = "output-img";
+      var selectView = "region-select";
+
+      function updateRegions(regions) {
+        var html = "";
+
+        for ( var i = 0; i < regions.length; i++ ) {
+          html += "<option value='" + regions[i] + "'>" + regions[i] + "</option>";
+        }
+
+        document.getElementById(selectView).innerHTML = html;
+      }
+
+      function setup() {
+
+        // List regions
+        var command = 'cat regions.txt';
         var url = "/launchMonitor.cgi?" + btoa(command);
 
         httpGet(url);
@@ -223,94 +240,81 @@
 
           try {
 
-            var output = JSON.parse(response)["output"];
-            //document.getElementById("Output").innerHTML = output;
+            var regions = JSON.parse(response)["output"].split(',');
+            updateRegions(regions);
 
           } catch(e) {
-
-
+            console.log(e);
           }
 
         }, 1000);
 
       }
 
-      function updateNets(nets) {
-        var html = "<thead><tr><th>File Name</th><th>Last Modified</th></tr></thead>";
+      function printSelectedRegions() {
+        var html = "";
 
-        html += "<tbody>";
-        for ( var i = 0; i < nets.length; i++ ) {
-          html += "<td>" + nets[i] + "</td>";
-          html += "<td>" + "</td>";
+        for (var i = 0; i < addToPlotVec.length; i++) {
+          html += ( i == 0 ? "" : ( ", ")) + addToPlotVec[i];
         }
-        html += "</tbody>";
 
-        document.getElementById("prev-networks-table").innerHTML = html;
+        document.getElementById(pView).innerHTML = html;
       }
 
-      function setup() {
+      function resetRegions() {
+        addToPlotVec = [];
+        printSelectedRegions();
+      }
 
-        // Output command output
-        setInterval(function() {
+      function addToPlot() {
 
-          var response = httpGet("/getOutput.cgi");
+        var regionsOptions = document.getElementById(selectView).length;
 
-          try {
+        if ( regionsOptions == 0 ) {
+          alert("Error: No regions have been registered. Is the server responding?");
+          return;
+        }
 
-            var output = JSON.parse(response)["output"];
-            document.getElementById("Output").innerHTML = output;
+        var e = document.getElementById(selectView);
+        var region = e.options[e.selectedIndex].value;
 
-          } catch(e) {
-
-
+        for ( var i = 0; i < addToPlotVec.length; i++ ) {
+          if ( region.localeCompare(addToPlotVec[i]) == 0) {
+            return;
           }
+        }
 
-        }, 1000);
+        addToPlotVec.push(region);
 
-        // List networks
-        setInterval(function() {
+        printSelectedRegions();
+      }
 
-          var command = 'ls nets';
-          var url = "/launchMonitor.cgi?" + btoa(command);
+      function generateNewPlot() {
 
-          httpGet(url);
+        var command = "python3 covid19count.py";
 
-          setTimeout(function() {
+        var regions = "";
+        for ( var i = 0; i < addToPlotVec.length; i++ ) {
+          regions += " " + addToPlotVec[i];
+        }
 
-            var response = httpGet("/getMonitorOutput.cgi");
+        command = command + regions;
 
-            try {
+        var url = "/launch.cgi?" + btoa(command);
 
-              var nets = JSON.parse(response)["output"].split(' ');
-              updateNets(nets);
+        httpGet(url);
 
-            } catch(e) {
-            }
+        /* Update image */
+        document.getElementById(pView).innerHTML = "Generating plot...";
 
-          }, 1000);
+        setTimeout(function() {
 
-        }, 5000);
+          document.getElementById(imgView).setAttribute("src", "output.png?" + new Date() );
 
+          document.getElementById(pView).innerHTML = "";
+          addToPlotVec = [];
 
-        setupDatasetSelect();
-
-        // Output networks
-        setInterval(function() {
-
-          var response = httpGet("/getLastCommand.cgi");
-
-          try {
-
-            var output = JSON.parse(response)["output"];
-            document.getElementById("LastCommand").innerHTML = output;
-
-          } catch(e) {
-
-
-          }
-
-        }, 1000);
-
+        }, 4000);
       }
 
       window.onload = setup;
@@ -319,71 +323,24 @@
     <div class="main_page">
 
         <div class="section_header">
-          <div id="bugs"></div>
-          Development Page
-        </div>
-
-        <div>
-
-          <center>
-          
-            <table>
-              <tr>
-                <td>
-                  <p>Starta kommandot: </p>
-                </td>
-                <td>
-                  <input id="CommandoInput"></input>
-                </td>
-                <td>
-                  <button onclick="sendCommand();">Launch</button>
-                </td>
-              </tr>
-
-            </table>
-
-          </center>
-
-        <div class="section_header" id="LastCommand">
-        </div>
-
-        <div>
-          <center>
-            <pre id="Output">
-              
-            </pre>
-          </center>
-        </div>
-
-        <div class="section_header">
-          Datasets
+          Confirmed cases
         </div>
 
         <div>
           <center>
             <table>
-              <tr>
-                <td>Select dataset</td>
-                <td><select id="dataset-select"></select></td>
-                <td><button>Download Content</button></td>
-              </tr>
+              <tbody>
+                <tr>
+                  <td><select id="region-select"></select></td>
+                  <td><button onclick="addToPlot();">Add region</button></td>
+                  <td><button onclick="resetRegions();">Reset region selection</button>
+                  <td><button id="view-plot-button" onclick="generateNewPlot();">View</button></td>
+                  <td><button onclick="window.open('/output.png');">Download image (.png)</button></td>
+                </tr>
+              </tbody>
             </table>
-
-            <pre id="dataset-view-pre">
-              
-            </pre>
-          </center>
-        </div>
-
-        <div class="section_header">
-          Networks
-        </div>
-
-        <div>
-          <center>
-            <table id="prev-networks-table">
-            </table>
-            <button>Download Network (.json)</button>
+            <p id="added-regions-p"></p>
+            <img id="output-img"></img>
 
           </center>
         </div>

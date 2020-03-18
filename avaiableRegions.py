@@ -41,8 +41,10 @@ def avalable_regions():
     regions.sort()
 
     f = open("regions.txt","w")
+    firstRegion = True
     for region in regions:
-      f.write(region + "\r\n")
+      f.write( ("," + region) if not firstRegion else region ) 
+      firstRegion = False
     f.close()
 
 if __name__ == "__main__":
