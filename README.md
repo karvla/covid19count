@@ -17,14 +17,12 @@ To plot with a logarithmic y-axis, add the argument `--log`.
 Build the image using the context of the root directory:
 
 ´´´
-docker build -t covid19-confirmed-cases:1.0 -f docker/Dockerfile .
+`docker build -t covid19-confirmed-cases:1.0 -f docker/Dockerfile .`
 ´´´
 
 Run the application, make it available on port 8080 (the container exposes port 8080, the syntax is '-p hostPort:containerPort'):
 
-´´´
-docker run --rm -d -p 8080:8080 covid19-confirmed-cases:1.0 
-´´´
+`docker run --rm -d -p 8080:8080 covid19-confirmed-cases:1.0`
 
 Open a browser and checkout localhost at 8080.
 
