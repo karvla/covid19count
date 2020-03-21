@@ -61,7 +61,8 @@ def _load_df() -> pd.DataFrame:
 @click.option("--deaths", is_flag=True, help="Plot deaths")
 @click.option("--log", is_flag=True, help="Use a log scale on the y-axis")
 @click.option("--bar", is_flag=True, help="Use a bar plot instead")
-def plot(regions: List[str], cum: bool, deaths: bool, log: bool, bar: bool):
+@click.option("--until")
+def plot(regions: List[str], cum: bool, deaths: bool, log: bool, bar: bool, until=None):
     """Plot cases (by default) or deaths for different regions"""
 
     cases_or_deaths = "Cases" if not deaths else "Deaths"
@@ -79,9 +80,12 @@ def plot(regions: List[str], cum: bool, deaths: bool, log: bool, bar: bool):
 
     # Remove rows before first case
     df = df.truncate(before=df.sum(axis=1).ge(1).idxmax())
-    df = df.loc[: pd.Timestamp("2020-03-2")]
+
     if cum:
         df = df.cumsum()
+
+    if until:
+        df = df.loc[: pd.Timestamp(until)]
 
     plotf = df.plot if not bar else df.plot.bar
     plotf(logy=log)
@@ -93,7 +97,7 @@ def plot(regions: List[str], cum: bool, deaths: bool, log: bool, bar: bool):
     plt.show()
 
     # Saving figure
-    plt.savefig('output.png')
+    plt.savefig("output.png")
 
 
 if __name__ == "__main__":
