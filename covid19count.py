@@ -92,6 +92,9 @@ def plot(regions: List[str], cum: bool, deaths: bool, log: bool, bar: bool):
     plt.legend()
     plt.show()
 
+    # Saving figure
+    plt.savefig('output.png')
+
 
 if __name__ == "__main__":
     main()
