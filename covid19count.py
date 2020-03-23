@@ -94,7 +94,6 @@ def plot(
 ):
     """Plot cases (by default) or deaths for different regions"""
 
-    print(output)
     cases_or_deaths = "Cases" if not deaths else "Deaths"
     regions = _filter_regions([r.lower() for r in regions])
 
@@ -148,7 +147,7 @@ def plot(
     plt.legend()
     _draw_watermark(plt.gcf())
     
-    if ( len(output) > 0 ):
+    if ( output is not None and len(output) > 0 ):
         # Saving figure
         plt.savefig(output)
     else:
