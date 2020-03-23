@@ -171,6 +171,7 @@ def listregions(
     stdout:bool,
     outfile="regions.txt"
     ):
+    """Get a list of the available regions"""
     import pandas as pd
 
     # TODO: Make sure that XLS file is actually downloaded
