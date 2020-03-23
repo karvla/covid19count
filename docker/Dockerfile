@@ -33,7 +33,7 @@ COPY ./docker/node/*.js ./
 RUN python3 -m poetry install --no-root
 
 RUN python3 covid19count.py listregions --outfile=regions.txt
-RUN python3 covid19count.py plot sweden denmark norway finland
+RUN python3 covid19count.py plot sweden denmark norway finland --outfile=output.png
 
 # Expose port 8080
 EXPOSE 8080

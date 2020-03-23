@@ -189,7 +189,7 @@ def listregions(
     if not outfile:
         outfile = "regions.txt"
 
-    data = "\n".join(regions)
+    data = "\r\n".join(regions)
     if stdout:
         print(data)
     else:
