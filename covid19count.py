@@ -230,7 +230,7 @@ def fatality(regions: List[str],
     plt.ylim(0)
     _draw_watermark(plt.gcf())
 
-    if ( outfile );
+    if ( outfile ):
         # Saving figure
         plt.savefig(outfile)
     else:
