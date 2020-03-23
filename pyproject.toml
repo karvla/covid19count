@@ -16,9 +16,11 @@ numpy = "^1.18.1"
 regex = "^2020.2.20"
 click = "^7.1.1"
 pandas = "^1.0.2"
+flake8 = "^3.7.9"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"
+black = "^19.10b0"
 
 [build-system]
 requires = ["poetry>=0.12"]
