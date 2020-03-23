@@ -79,6 +79,7 @@ def _load_population():
 @click.option("--from-first-death", is_flag=True)
 @click.option("--since")
 @click.option("--until")
+@click.option("--output")
 def plot(
     regions: List[str],
     cum: bool,
@@ -89,9 +90,11 @@ def plot(
     from_first_death: bool,
     since=None,
     until=None,
+    output=""
 ):
     """Plot cases (by default) or deaths for different regions"""
 
+    print(output)
     cases_or_deaths = "Cases" if not deaths else "Deaths"
     regions = _filter_regions([r.lower() for r in regions])
 
@@ -144,11 +147,13 @@ def plot(
     plt.ylim(0 if per_capita else 1)
     plt.legend()
     _draw_watermark(plt.gcf())
-    plt.show()
-
-    # Saving figure
-    plt.savefig("output.png")
-
+    
+    if ( len(output) > 0 ):
+        # Saving figure
+        plt.savefig(output)
+    else:
+        # Showing figure
+        plt.show()
 
 def _filter_regions(regions: List[str]) -> List[str]:
     df = _load_df()
