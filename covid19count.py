@@ -24,7 +24,7 @@ def _get_xls_url() -> str:
 
 
 def _download_file_cached(
-    get_url: Callable[[], str], path: Path, cache_expire: int = 300
+    get_url: Callable[[], str], path: Path, cache_expire: int = 3600
 ):
     # TODO: Test file before saving (in case file is malformed)
     if (
@@ -56,15 +56,39 @@ def _load_df() -> pd.DataFrame:
     return pd.read_excel(path, index_col="DateRep", parse_dates=True).sort_index()
 
 
+def _load_population():
+    # TODO: Get more recent population data
+    path = Path("population.csv")
+    _download_file_cached(
+        lambda: "https://datahub.io/core/population/r/population.csv", path,
+    )
+    df = pd.read_csv(path, parse_dates=True)
+    df = df.set_index(pd.DatetimeIndex([str(x) for x in df["Year"]]))
+    df = df.pivot(columns="Country Name", values="Value")
+    df.columns = [x.lower() for x in df.columns]
+    return df.iloc[-1]
+
+
 @main.command()
 @click.argument("regions", nargs=-1, required=True)
 @click.option("--cum", is_flag=True, help="Plot cumulative cases/deaths")
 @click.option("--deaths", is_flag=True, help="Plot deaths")
 @click.option("--log", is_flag=True, help="Use a log scale on the y-axis")
 @click.option("--bar", is_flag=True, help="Use a bar plot instead")
+@click.option("--per-capita", is_flag=True)
+@click.option("--from-first-death", is_flag=True)
+@click.option("--since")
 @click.option("--until")
 def plot(
-    regions: List[str], cum: bool, deaths: bool, log: bool, bar: bool, until=None,
+    regions: List[str],
+    cum: bool,
+    deaths: bool,
+    log: bool,
+    bar: bool,
+    per_capita: bool,
+    from_first_death: bool,
+    since=None,
+    until=None,
 ):
     """Plot cases (by default) or deaths for different regions"""
 
@@ -72,9 +96,11 @@ def plot(
     regions = _filter_regions([r.lower() for r in regions])
 
     df = _load_df()
+    most_recent = max(df.index).date()
 
     df = df[df["Countries and territories"].str.lower().isin(regions)]
     df = df.pivot(columns="Countries and territories", values=cases_or_deaths)
+    df.columns = [c.replace("_", " ") for c in df.columns]
 
     # Remove rows before first case
     df = df.truncate(before=df.sum(axis=1).ge(1).idxmax())
@@ -82,18 +108,40 @@ def plot(
     if cum:
         df = df.cumsum()
 
+    if since:
+        df = df.loc[pd.Timestamp(since) :]
     if until:
         df = df.loc[: pd.Timestamp(until)]
+
+    if per_capita:
+        pop = _load_population()
+        for region in df.columns:
+            popreg = region.lower().replace("_", " ")
+            if popreg == "united states of america":
+                popreg = "united states"
+            df[region] = df[region] / pop.loc[popreg]
+
+    if from_first_death:
+        dfs = []
+        for region in df.columns:
+            df_c = df[region]
+            df_c = df_c.truncate(before=df_c.gt(0).idxmax())
+            df_c.index = list(range(0, len(df_c)))
+            dfs.append(df_c)
+        df = pd.concat(dfs, axis=1)
 
     plotf = df.plot if not bar else df.plot.bar
     plotf(logy=log)
 
     new_or_cum = "Cumulative" if cum else "New"
-    plt.ylabel(f"{new_or_cum} {cases_or_deaths.lower()}")
-    plt.title(
-        f"COVID-19 {new_or_cum} {cases_or_deaths.lower()} as of {max(df.index).date()}"
+    plt.xlabel("Days from first death" if from_first_death else "")
+    plt.ylabel(
+        f"{new_or_cum} {cases_or_deaths.lower()} {'per capita' if per_capita else ''}"
     )
-    plt.ylim(1)
+    plt.title(
+        f"COVID-19 {new_or_cum} {cases_or_deaths.lower()} {'per capita' if per_capita else ''} as of {most_recent}"
+    )
+    plt.ylim(0 if per_capita else 1)
     plt.legend()
     _draw_watermark(plt.gcf())
     plt.show()
@@ -116,6 +164,7 @@ def _filter_regions(regions: List[str]) -> List[str]:
 @main.command()
 @click.argument("regions", nargs=-1, required=True)
 def fatality(regions: List[str]):
+    # TODO: Add time-lag to account for testing
     regions = _filter_regions(regions)
 
     df = _load_df()
