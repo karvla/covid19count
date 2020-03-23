@@ -79,7 +79,7 @@ def _load_population():
 @click.option("--from-first-death", is_flag=True)
 @click.option("--since")
 @click.option("--until")
-@click.option("--output")
+@click.option("--outfile")
 def plot(
     regions: List[str],
     cum: bool,
@@ -90,7 +90,7 @@ def plot(
     from_first_death: bool,
     since=None,
     until=None,
-    output=""
+    outfile="output.png"
 ):
     """Plot cases (by default) or deaths for different regions"""
 
@@ -147,9 +147,9 @@ def plot(
     plt.legend()
     _draw_watermark(plt.gcf())
     
-    if ( output is not None and len(output) > 0 ):
+    if ( outfile is not None and len(outfile) > 0 ):
         # Saving figure
-        plt.savefig(output)
+        plt.savefig(outfile)
     else:
         # Showing figure
         plt.show()
@@ -201,7 +201,9 @@ def listregions(
 
 @main.command()
 @click.argument("regions", nargs=-1, required=True)
-def fatality(regions: List[str]):
+@click.option("--outfile")
+def fatality(regions: List[str], 
+    outfile="output.png"):
     # TODO: Add time-lag to account for testing
     regions = _filter_regions(regions)
 
@@ -230,7 +232,13 @@ def fatality(regions: List[str]):
     plt.xlabel("")
     plt.ylim(0)
     _draw_watermark(plt.gcf())
-    plt.show()
+
+    if ( outfile is not None and len(outfile) > 0 ):
+        # Saving figure
+        plt.savefig(outfile)
+    else:
+        # Showing figure
+        plt.show()
 
 
 def _draw_watermark(fig):

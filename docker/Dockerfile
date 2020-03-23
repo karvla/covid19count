@@ -2,6 +2,8 @@
 FROM ubuntu 
 FROM python:3.7
 
+USER root
+
 RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install nodejs -y 
@@ -16,7 +18,6 @@ COPY ./pyproject.toml .
 
 # Copy python script
 COPY ./covid19count.py .
-COPY ./avaiableRegions.py .
 COPY ./poetry.lock .
 
 # Copy Web GUI stuff
@@ -25,10 +26,9 @@ COPY ./docker/node/*.js ./
 
 EXPOSE 8080
 
-RUN poetry install .
-RUN poetry shell .
+RUN pip install .
 
-RUN python3 save_regions.py
-RUN python3 covid19count.py sweden denmark norway finland
+RUN python3 covid19count.py listregions --outfile=regions.txt
+RUN python3 covid19count.py plot sweden denmark norway finland
 
 CMD ["node", "app.js"]
