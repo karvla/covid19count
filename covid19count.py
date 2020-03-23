@@ -90,7 +90,7 @@ def plot(
     from_first_death: bool,
     since=None,
     until=None,
-    outfile="output.png"
+    outfile=None
 ):
     """Plot cases (by default) or deaths for different regions"""
 
@@ -147,7 +147,7 @@ def plot(
     plt.legend()
     _draw_watermark(plt.gcf())
     
-    if ( outfile is not None and len(outfile) > 0 ):
+    if ( outfile ):
         # Saving figure
         plt.savefig(outfile)
     else:
@@ -169,7 +169,7 @@ def _filter_regions(regions: List[str]) -> List[str]:
 @click.option("--outfile")
 def listregions(
     stdout:bool,
-    outfile="regions.txt"
+    outfile=None
     ):
     """Get a list of the available regions"""
     import pandas as pd
@@ -184,26 +184,23 @@ def listregions(
       regions.append(region)
 
     # Remove duplicates
-    regions = set(regions)
-    regions = list(regions)
+    regions = sorted(set(df["Countries and territories"]))
 
-    regions.sort()
-
-    if outfile is None:
+    if not outfile:
         outfile = "regions.txt"
 
-    f = open(outfile, "w")
-    for region in regions:
-      if ( stdout is not None and stdout ):
-        print(region)
-      f.write(region + "\r\n")
-    f.close()
+    data = "\n".join(regions)
+    if stdout:
+        print(data)
+    else:
+        with open(outfile, "w") as f:
+            f.write(data)
 
 @main.command()
 @click.argument("regions", nargs=-1, required=True)
 @click.option("--outfile")
 def fatality(regions: List[str], 
-    outfile="output.png"):
+    outfile=None):
     # TODO: Add time-lag to account for testing
     regions = _filter_regions(regions)
 
@@ -233,13 +230,12 @@ def fatality(regions: List[str],
     plt.ylim(0)
     _draw_watermark(plt.gcf())
 
-    if ( outfile is not None and len(outfile) > 0 ):
+    if ( outfile );
         # Saving figure
         plt.savefig(outfile)
     else:
         # Showing figure
         plt.show()
-
 
 def _draw_watermark(fig):
     fig.text(0.01, 0.01, "Data from www.ecdc.europa.eu", ha="left", va="bottom")
@@ -255,7 +251,6 @@ def _draw_watermark(fig):
         ha="right",
         va="bottom",
     )
-
 
 if __name__ == "__main__":
     main()
