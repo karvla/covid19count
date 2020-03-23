@@ -343,8 +343,7 @@
 
           document.getElementById(imgView).setAttribute("src", "output.png?" + new Date() );
 
-          document.getElementById(pView).innerHTML = "";
-          addToPlotVec = [];
+          printSelectedRegions();
 
         }, 7000);
       }
@@ -367,7 +366,7 @@
                   <td><select id="region-select"></select></td>
                 </tr>
                 <tr>
-                  <td><button onclick="addToPlot();">Add region</button></td>
+                  <td><button onclick="addToPlot();">Select region</button></td>
                   <td><button onclick="resetRegions();">Reset region selection</button>
                 </tr>
                 <tr>
