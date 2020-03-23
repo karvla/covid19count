@@ -164,6 +164,39 @@ def _filter_regions(regions: List[str]) -> List[str]:
             regions.remove(region)
     return regions
 
+@main.command()
+@click.option("--stdout", is_flag=True)
+@click.option("--outfile")
+def listregions(
+    stdout:bool,
+    outfile="regions.txt"
+    ):
+    import pandas as pd
+
+    # TODO: Make sure that XLS file is actually downloaded
+    df = pd.read_excel(
+        _get_xls_url(), index_col="DateRep", parse_dates=True
+    ).sort_index()
+
+    regions = []
+    for region in df["Countries and territories"]:
+      regions.append(region)
+
+    # Remove duplicates
+    regions = set(regions)
+    regions = list(regions)
+
+    regions.sort()
+
+    if outfile is None:
+        outfile = "regions.txt"
+
+    f = open(outfile, "w")
+    for region in regions:
+      if ( stdout is not None and stdout ):
+        print(region)
+      f.write(region + "\r\n")
+    f.close()
 
 @main.command()
 @click.argument("regions", nargs=-1, required=True)
