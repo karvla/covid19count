@@ -79,6 +79,7 @@ def _load_population():
 @click.option("--from-first-death", is_flag=True)
 @click.option("--since")
 @click.option("--until")
+@click.option("--outfile")
 def plot(
     regions: List[str],
     cum: bool,
@@ -89,6 +90,7 @@ def plot(
     from_first_death: bool,
     since=None,
     until=None,
+    outfile=None
 ):
     """Plot cases (by default) or deaths for different regions"""
 
@@ -144,11 +146,13 @@ def plot(
     plt.ylim(0 if per_capita else 1)
     plt.legend()
     _draw_watermark(plt.gcf())
-    plt.show()
-
-    # Saving figure
-    plt.savefig("output.png")
-
+    
+    if ( outfile ):
+        # Saving figure
+        plt.savefig(outfile)
+    else:
+        # Showing figure
+        plt.show()
 
 def _filter_regions(regions: List[str]) -> List[str]:
     df = _load_df()
@@ -160,10 +164,43 @@ def _filter_regions(regions: List[str]) -> List[str]:
             regions.remove(region)
     return regions
 
+@main.command()
+@click.option("--stdout", is_flag=True)
+@click.option("--outfile")
+def listregions(
+    stdout:bool,
+    outfile=None
+    ):
+    """Get a list of the available regions"""
+    import pandas as pd
+
+    # TODO: Make sure that XLS file is actually downloaded
+    df = pd.read_excel(
+        _get_xls_url(), index_col="DateRep", parse_dates=True
+    ).sort_index()
+
+    regions = []
+    for region in df["Countries and territories"]:
+      regions.append(region)
+
+    # Remove duplicates
+    regions = sorted(set(df["Countries and territories"]))
+
+    if not outfile:
+        outfile = "regions.txt"
+
+    data = "\r\n".join(regions)
+    if stdout:
+        print(data)
+    else:
+        with open(outfile, "w") as f:
+            f.write(data)
 
 @main.command()
 @click.argument("regions", nargs=-1, required=True)
-def fatality(regions: List[str]):
+@click.option("--outfile")
+def fatality(regions: List[str], 
+    outfile=None):
     # TODO: Add time-lag to account for testing
     regions = _filter_regions(regions)
 
@@ -192,8 +229,13 @@ def fatality(regions: List[str]):
     plt.xlabel("")
     plt.ylim(0)
     _draw_watermark(plt.gcf())
-    plt.show()
 
+    if ( outfile ):
+        # Saving figure
+        plt.savefig(outfile)
+    else:
+        # Showing figure
+        plt.show()
 
 def _draw_watermark(fig):
     fig.text(0.01, 0.01, "Data from www.ecdc.europa.eu", ha="left", va="bottom")
@@ -209,7 +251,6 @@ def _draw_watermark(fig):
         ha="right",
         va="bottom",
     )
-
 
 if __name__ == "__main__":
     main()

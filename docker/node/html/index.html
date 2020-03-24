@@ -56,6 +56,10 @@
     background-color: #F5F6F7;
   }
 
+  td {
+    padding:10px;
+  }
+
   div.page_header span {
     margin: 15px 0px 0px 50px;
 
@@ -153,6 +157,10 @@
     background-color: #9F9386;
   }
 
+  button {
+    width: 100%;
+  }
+
   .floating_element {
     position: relative;
     float: left;
@@ -240,7 +248,7 @@
 
           try {
 
-            var regions = JSON.parse(response)["output"].split(',');
+            var regions = JSON.parse(response)["output"].split('\r\n');
             updateRegions(regions);
 
           } catch(e) {
@@ -291,11 +299,35 @@
 
       function generateNewPlot() {
 
-        var command = "python3 covid19count.py";
+        var cumulative = "opt-cum";
+        var fatality = "opt-fat";
+        var rate = "opt-new";
+
+        var regionToLowerCase = false;
+
+        var command = "python3 covid19count.py"
+
+        if ( document.getElementById(cumulative).checked ) {
+          command += " plot --cum";
+        } else if ( document.getElementById(rate).checked ) {
+          // No flag for this option ?
+          command += " plot";
+        } else if ( document.getElementById(fatality).checked ) {
+          // No flag for this option ?
+          command += " fatality";
+          // I need to convert to lower case ?
+          regionToLowerCase = true;
+        }
+
+        command += " --outfile=output.png"
 
         var regions = "";
         for ( var i = 0; i < addToPlotVec.length; i++ ) {
-          regions += " " + addToPlotVec[i];
+          if (regionToLowerCase){
+            regions += " " + addToPlotVec[i].toLowerCase();
+          } else {
+            regions += " " + addToPlotVec[i];
+          }
         }
 
         command = command + regions;
@@ -311,10 +343,9 @@
 
           document.getElementById(imgView).setAttribute("src", "output.png?" + new Date() );
 
-          document.getElementById(pView).innerHTML = "";
-          addToPlotVec = [];
+          printSelectedRegions();
 
-        }, 4000);
+        }, 7000);
       }
 
       window.onload = setup;
@@ -331,16 +362,30 @@
             <table>
               <tbody>
                 <tr>
+                  <td><p>Region:</p></td>
                   <td><select id="region-select"></select></td>
-                  <td><button onclick="addToPlot();">Add region</button></td>
+                </tr>
+                <tr>
+                  <td><button onclick="addToPlot();">Select region</button></td>
                   <td><button onclick="resetRegions();">Reset region selection</button>
+                </tr>
+                <tr>
                   <td><button id="view-plot-button" onclick="generateNewPlot();">View</button></td>
                   <td><button onclick="window.open('/output.png');">Download image (.png)</button></td>
                 </tr>
+                <tr>
+                  <td>Options</td>
+                  <td><input type="radio" id="opt-cum" name="plotopt">Number of cases</input><br>
+
+            <input checked="checked" type="radio" id="opt-new" name="plotopt">New cases</input><br>
+            <input type="radio" id="opt-fat" name="plotopt">Fatality rate</input><br>
+            </td>
+                </tr>
+
               </tbody>
             </table>
             <p id="added-regions-p"></p>
-            <img id="output-img"></img>
+            <img src="/output.png" id="output-img"></img>
 
           </center>
         </div>
