@@ -140,10 +140,12 @@ def plot(
     plt.ylabel(
         f"{new_or_cum} {cases_or_deaths.lower()} {'per capita' if per_capita else ''}"
     )
+    plt.tick_params(axis='y', which='both', labelleft='off', labelright='on')
     plt.title(
         f"COVID-19 {new_or_cum} {cases_or_deaths.lower()} {'per capita' if per_capita else ''} as of {most_recent}"
     )
     plt.ylim(0 if per_capita else 1)
+
     plt.legend()
     _draw_watermark(plt.gcf())
     
