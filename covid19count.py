@@ -46,14 +46,14 @@ def _download_file(url: str, path: Path) -> Path:
 
 @click.group()
 def main():
-    """Tools to analyze cases and deaths from COVID-19"""
+    """Tools to analyze cases andddeaths from COVID-19"""
     pass
 
 
 def _load_df() -> pd.DataFrame:
     path = Path("data.xls")
     _download_file_cached(_get_xls_url, path)
-    return pd.read_excel(path, index_col="DateRep", parse_dates=True).sort_index()
+    return pd.read_excel(path, index_col="dateRep", parse_dates=True).sort_index()
 
 
 def _load_population():
@@ -94,14 +94,14 @@ def plot(
 ):
     """Plot cases (by default) or deaths for different regions"""
 
-    cases_or_deaths = "Cases" if not deaths else "Deaths"
+    cases_or_deaths = "cases" if not deaths else "deaths"
     regions = _filter_regions([r.lower() for r in regions])
 
     df = _load_df()
     most_recent = max(df.index).date()
 
-    df = df[df["Countries and territories"].str.lower().isin(regions)]
-    df = df.pivot(columns="Countries and territories", values=cases_or_deaths)
+    df = df[df["countriesAndTerritories"].str.lower().isin(regions)]
+    df = df.pivot(columns="countriesAndTerritories", values=cases_or_deaths)
     df.columns = [c.replace("_", " ") for c in df.columns]
 
     # Remove rows before first case
@@ -158,7 +158,7 @@ def plot(
 
 def _filter_regions(regions: List[str]) -> List[str]:
     df = _load_df()
-    all_regions = set(df["Countries and territories"].str.lower())
+    all_regions = set(df["countriesAndTerritories"].str.lower())
     # print(sorted(all_regions))
     for region in regions:
         if region not in all_regions:
@@ -178,15 +178,15 @@ def listregions(
 
     # TODO: Make sure that XLS file is actually downloaded
     df = pd.read_excel(
-        _get_xls_url(), index_col="DateRep", parse_dates=True
+        _get_xls_url(), index_col="dateRep", parse_dates=True
     ).sort_index()
 
     regions = []
-    for region in df["Countries and territories"]:
+    for region in df["countriesAndTerritories"]:
       regions.append(region)
 
     # Remove duplicates
-    regions = sorted(set(df["Countries and territories"]))
+    regions = sorted(set(df["countriesAndTerritories"]))
 
     if not outfile:
         outfile = "regions.txt"
@@ -207,9 +207,9 @@ def fatality(regions: List[str],
     regions = _filter_regions(regions)
 
     df = _load_df()
-    df = df[df["Countries and territories"].str.lower().isin(regions)]
-    df_c = df.pivot(columns="Countries and territories", values="Cases")
-    df_d = df.pivot(columns="Countries and territories", values="Deaths")
+    df = df[df["countriesAndTerritories"].str.lower().isin(regions)]
+    df_c = df.pivot(columns="countriesAndTerritories", values="cases")
+    df_d = df.pivot(columns="countriesAndTerritories", values="deaths")
     df = df_d.cumsum() / df_c.cumsum()
 
     # Remove rows before first case
