@@ -26,7 +26,6 @@ def _get_xls_url() -> str:
 def _download_file_cached(
     get_url: Callable[[], str], path: Path, cache_expire: int = 3600
 ):
-    # TODO: Test file before saving (in case file is malformed)
     if (
         not path.exists()
         or path.lstat().st_mtime < datetime.now().timestamp() - cache_expire
@@ -40,6 +39,7 @@ def _download_file_cached(
 
 def _download_file(url: str, path: Path) -> Path:
     r = requests.get(url)
+    r.raise_for_status()
     path.open("wb").write(r.content)
     return path
 
@@ -90,7 +90,7 @@ def plot(
     from_first_death: bool,
     since=None,
     until=None,
-    outfile=None
+    outfile=None,
 ):
     """Plot cases (by default) or deaths for different regions"""
 
@@ -140,7 +140,7 @@ def plot(
     plt.ylabel(
         f"{new_or_cum} {cases_or_deaths.lower()} {'per capita' if per_capita else ''}"
     )
-    plt.tick_params(axis='y', which='both', labelleft='off', labelright='on')
+    plt.tick_params(axis="y", which="both", labelleft="off", labelright="on")
     plt.title(
         f"COVID-19 {new_or_cum} {cases_or_deaths.lower()} {'per capita' if per_capita else ''} as of {most_recent}"
     )
@@ -148,13 +148,14 @@ def plot(
 
     plt.legend()
     _draw_watermark(plt.gcf())
-    
-    if ( outfile ):
+
+    if outfile:
         # Saving figure
         plt.savefig(outfile)
     else:
         # Showing figure
         plt.show()
+
 
 def _filter_regions(regions: List[str]) -> List[str]:
     df = _load_df()
@@ -166,13 +167,11 @@ def _filter_regions(regions: List[str]) -> List[str]:
             regions.remove(region)
     return regions
 
+
 @main.command()
 @click.option("--stdout", is_flag=True)
 @click.option("--outfile")
-def listregions(
-    stdout:bool,
-    outfile=None
-    ):
+def listregions(stdout: bool, outfile=None):
     """Get a list of the available regions"""
     import pandas as pd
 
@@ -183,7 +182,7 @@ def listregions(
 
     regions = []
     for region in df["countriesAndTerritories"]:
-      regions.append(region)
+        regions.append(region)
 
     # Remove duplicates
     regions = sorted(set(df["countriesAndTerritories"]))
@@ -198,11 +197,11 @@ def listregions(
         with open(outfile, "w") as f:
             f.write(data)
 
+
 @main.command()
 @click.argument("regions", nargs=-1, required=True)
 @click.option("--outfile")
-def fatality(regions: List[str], 
-    outfile=None):
+def fatality(regions: List[str], outfile=None):
     # TODO: Add time-lag to account for testing
     regions = _filter_regions(regions)
 
@@ -232,12 +231,13 @@ def fatality(regions: List[str],
     plt.ylim(0)
     _draw_watermark(plt.gcf())
 
-    if ( outfile ):
+    if outfile:
         # Saving figure
         plt.savefig(outfile)
     else:
         # Showing figure
         plt.show()
+
 
 def _draw_watermark(fig):
     fig.text(0.01, 0.01, "Data from www.ecdc.europa.eu", ha="left", va="bottom")
@@ -253,6 +253,7 @@ def _draw_watermark(fig):
         ha="right",
         va="bottom",
     )
+
 
 if __name__ == "__main__":
     main()
